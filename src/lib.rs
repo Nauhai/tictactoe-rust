@@ -50,12 +50,8 @@ pub struct Board {
 impl Board {
     pub fn new() -> Board {
         let mut tiles = HashMap::new();
-        for i in 1..=9 {
-            tiles.insert(i, TileState::Empty);
-        }
-        return Board {
-            tiles,
-        }
+        (1..=9).for_each(|i| {tiles.insert(i, TileState::Empty);});
+        Board { tiles }
     }
 
     fn from_str(sequence: &str) -> Board {
