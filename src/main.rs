@@ -3,8 +3,8 @@ use rand::Rng;
 use std::io::stdin;
 
 fn main() {
-    let wrapper = ConsoleInterface {};
-    run(&wrapper);
+    let interface = ConsoleInterface {};
+    run(&interface);
 }
 
 pub struct ConsoleInterface {}
