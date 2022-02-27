@@ -93,7 +93,6 @@ impl Board {
         self.tiles.values().all(|v| matches!(v, TileState::Marked(_)))
     }
 
-    // TODO: check only the possible winning moves after a play
     pub fn get_winner(&self) -> Option<Sign> {
         let layouts = [
             [1, 2, 3],
@@ -117,7 +116,7 @@ impl Board {
                 },
                 _ => continue
             }
-        }
+        } 
 
         None
     }
