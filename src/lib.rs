@@ -93,7 +93,7 @@ impl Board {
         let layouts = [
             [1, 2, 3],
             [4, 5, 6],
-            [4, 5, 6],
+            [7, 8, 9],
             [1, 4, 7],
             [2, 5, 8],
             [3, 6, 9],
@@ -259,15 +259,15 @@ mod tests {
         let board = Board::from_str(tiles);
 
         let mut should_be = HashMap::new();
-        should_be.insert(0, Marked(O));
-        should_be.insert(1, Marked(X));
-        should_be.insert(2, Empty);
-        should_be.insert(3, Marked(X));
-        should_be.insert(4, Empty);
-        should_be.insert(5, Marked(O));
+        should_be.insert(1, Marked(O));
+        should_be.insert(2, Marked(X));
+        should_be.insert(3, Empty);
+        should_be.insert(4, Marked(X));
+        should_be.insert(5, Empty);
         should_be.insert(6, Marked(O));
-        should_be.insert(7, Empty);
-        should_be.insert(8, Marked(X));
+        should_be.insert(7, Marked(O));
+        should_be.insert(8, Empty);
+        should_be.insert(9, Marked(X));
 
         assert_eq!(board.tiles, should_be);
     }
@@ -327,23 +327,23 @@ mod tests {
         let board = Board::from_str("OXOX OXOX");
 
         assert!(!board.is_full());
-        assert_eq!(board.get_winner(), NotOver);
+        assert_eq!(board.get_game_state(), NotOver);
     }
 
     #[test]
     fn it_sets_tile() {
         let mut board = Board::new();
 
-        assert!(board.set_tile(0, O).is_ok());
-        assert_eq!(*board.tiles.get(&0).unwrap(), Marked(O));
+        assert!(board.set_tile(1, O).is_ok());
+        assert_eq!(*board.tiles.get(&1).unwrap(), Marked(O));
     }
 
     #[test]
     fn it_doesnt_set_tile() {
         let mut board = Board::from_str("O        ");
 
-        assert!(board.set_tile(0, X).is_err());
-        assert_eq!(*board.tiles.get(&0).unwrap(), Marked(O));
+        assert!(board.set_tile(1, X).is_err());
+        assert_eq!(*board.tiles.get(&1).unwrap(), Marked(O));
     }
     
     #[test]
@@ -360,27 +360,25 @@ mod tests {
         assert!(validate_input(&String::from("yo")).is_err());
     }
     
-
-    #[test]
-    fn actions_correctly_registered() {
-        let mock = MockInterface::new(vec!["1", "5", "3", "2"]);
-        run(&mock);
-        
-        let actions = vec![
-            "O plays on 1".to_string(),
-            "X plays on 5".to_string(),
-            "O plays on 3".to_string(),
-            "X plays on 2".to_string()
-        ];
-        assert_eq!(mock.actions.borrow().to_owned(), actions);
-    }
-    
     #[test]
     fn it_draws() {
         let mock = MockInterface::new(vec!["5", "2", "6", "4", "1", "9", "7", "3", "8"]);
         run(&mock);
 
-        assert_eq!(mock.actions.borrow().last().unwrap(), "Draw, board is full");
+        let actions = vec![
+            "O plays on 5".to_string(),
+            "X plays on 2".to_string(),
+            "O plays on 6".to_string(),
+            "X plays on 4".to_string(),
+            "O plays on 1".to_string(),
+            "X plays on 9".to_string(),
+            "O plays on 7".to_string(),
+            "X plays on 3".to_string(),
+            "O plays on 8".to_string(),
+            "Draw, board is full".to_string()
+        ];
+
+        assert_eq!(mock.actions.borrow().to_owned(), actions);
     }
 
     #[test]
