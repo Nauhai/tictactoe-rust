@@ -132,15 +132,15 @@ impl Display for Board {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f,
             " {} | {} | {} \n-----------\n {} | {} | {} \n-----------\n {} | {} | {}",
-            self.tiles.get(&1).unwrap(),
-            self.tiles.get(&2).unwrap(),
-            self.tiles.get(&3).unwrap(),
-            self.tiles.get(&4).unwrap(),
-            self.tiles.get(&5).unwrap(),
-            self.tiles.get(&6).unwrap(),
-            self.tiles.get(&7).unwrap(),
-            self.tiles.get(&8).unwrap(),
-            self.tiles.get(&9).unwrap(),
+            self.tiles[&1],
+            self.tiles[&2],
+            self.tiles[&3],
+            self.tiles[&4],
+            self.tiles[&5],
+            self.tiles[&6],
+            self.tiles[&7],
+            self.tiles[&8],
+            self.tiles[&9],
         )
     }
 }
@@ -258,16 +258,17 @@ mod tests {
         let tiles = "OX X OO X";
         let board = Board::from_str(tiles);
 
-        let mut should_be = HashMap::new();
-        should_be.insert(1, Marked(O));
-        should_be.insert(2, Marked(X));
-        should_be.insert(3, Empty);
-        should_be.insert(4, Marked(X));
-        should_be.insert(5, Empty);
-        should_be.insert(6, Marked(O));
-        should_be.insert(7, Marked(O));
-        should_be.insert(8, Empty);
-        should_be.insert(9, Marked(X));
+        let should_be = HashMap::from([
+            (1, Marked(O)),
+            (2, Marked(X)),
+            (3, Empty),
+            (4, Marked(X)),
+            (5, Empty),
+            (6, Marked(O)),
+            (7, Marked(O)),
+            (8, Empty),
+            (9, Marked(X)),
+        ]);
 
         assert_eq!(board.tiles, should_be);
     }
