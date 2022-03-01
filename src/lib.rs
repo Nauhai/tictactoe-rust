@@ -45,13 +45,14 @@ pub enum GameState {
 #[derive(Debug, PartialEq)]
 pub struct Board {
     tiles: HashMap<u8, TileState>,
+    count: u8,
 }
 
 impl Board {
     pub fn new() -> Board {
         let mut tiles = HashMap::new();
         (1..=9).for_each(|i| {tiles.insert(i, TileState::Empty);});
-        Board { tiles }
+        Board { tiles, count: 0 }
     }
 
     fn from_str(sequence: &str) -> Board {
@@ -59,17 +60,25 @@ impl Board {
             panic!("Uncomputable sequence")
         }
 
+        let mut count = 0;
+
         let tiles = (1..=9).into_iter().zip(
             sequence.chars()
                 .map(|c| match c {
-                    'O' => TileState::Marked(Sign::O),
-                    'X' => TileState::Marked(Sign::X),
+                    'O' => {
+                        count += 1;
+                        TileState::Marked(Sign::O)
+                    },
+                    'X' => {
+                        count += 1;
+                        TileState::Marked(Sign::X)
+                    },
                     ' ' => TileState::Empty,
                     other => panic!("Unknown tile identifier: '{}'", other)
                 })
         ).collect::<HashMap<u8, TileState>>();
 
-        Board { tiles }
+        Board { tiles, count }
     }
 
     pub fn set_tile(&mut self, index: u8, sign: Sign) -> Result<u8, &str> {
@@ -86,7 +95,7 @@ impl Board {
     }
 
     pub fn is_full(&self) -> bool {
-        self.tiles.values().all(|v| matches!(v, TileState::Marked(_)))
+        self.count >= 9
     }
 
     pub fn get_winner(&self) -> Option<Sign> {
