@@ -101,11 +101,9 @@ impl Board {
             [3, 5, 7]
         ];
 
-        for layout in layouts {
-            let mut signs = layout.into_iter().map(|i| self.tiles.get(&i).unwrap());
-        
-            match (signs.next().unwrap(), signs.next().unwrap(), signs.next().unwrap()) {
-                (TileState::Marked(s1), TileState::Marked(s2), TileState::Marked(s3)) => {
+        for layout in layouts {        
+            match layout.map(|i| self.tiles.get(&i).unwrap()) {
+                [TileState::Marked(s1), TileState::Marked(s2), TileState::Marked(s3)] => {
                     if s1 == s2 && s2 == s3 {
                         return Some(*s1)
                     }
