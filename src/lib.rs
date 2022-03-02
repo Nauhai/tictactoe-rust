@@ -161,7 +161,8 @@ pub struct Player {
 
 
 pub trait Interface {
-    fn choose_first_player<'a>(&self, players: &'a [Player]) -> &'a Player;
+    // fn choose_first_player<'a>(&self, players: &'a [Player]) -> &'a Player;
+    fn choose_first_player_sign(&self) -> Sign;
     fn retrieve_input(&self, message: &str) -> String;
     fn on_play(&self, player: &Player, index: u8);
     fn show_board(&self, board: &Board);
@@ -175,18 +176,19 @@ pub fn run<T: Interface>(interface: &T) {
         Player { sign: Sign::O },
         Player { sign: Sign::X }
     ];
-    let mut current_player = interface.choose_first_player(&players);
+
+    let player_sign = interface.choose_first_player_sign();
+    let mut player_index = players.iter().position(|p| p.sign == player_sign).unwrap();
 
     let mut board = Board::new();
     
     while board.get_game_state() == GameState::NotOver {
         interface.show_board(&board);
-        player_moves(current_player, &mut board, interface);
 
-        current_player = match current_player.sign {
-            Sign::O => &players[1],
-            Sign::X => &players[0],
-        };
+        let current_player = &players[player_index % players.len()];
+        player_moves(&current_player, &mut board, interface);
+
+        player_index += 1;
     }
 
     interface.on_end(board.get_game_state());
@@ -234,8 +236,8 @@ mod tests {
     }
 
     impl<'a> Interface for MockInterface<'a> {
-        fn choose_first_player<'b>(&self, players: &'b [Player]) -> &'b Player {
-            return &players[0]
+        fn choose_first_player_sign(&self) -> Sign {
+            Sign::O
         }
 
         fn retrieve_input(&self, message: &str) -> String {

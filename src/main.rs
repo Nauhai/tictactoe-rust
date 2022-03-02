@@ -1,5 +1,5 @@
 use tictactoe::*;
-use rand::Rng;
+use rand::seq::SliceRandom;
 use std::io::stdin;
 
 fn main() {
@@ -9,8 +9,8 @@ fn main() {
 
 pub struct ConsoleInterface {}
 impl Interface for ConsoleInterface {
-    fn choose_first_player<'a>(&self, players: &'a [Player]) -> &'a Player {
-        &players[rand::thread_rng().gen_range(0..2)]
+    fn choose_first_player_sign(&self) -> Sign {
+        *[Sign::O, Sign::X].choose(&mut rand::thread_rng()).unwrap()
     }
 
     fn retrieve_input(&self, message: &str) -> String {
