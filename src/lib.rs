@@ -1,22 +1,25 @@
-use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 use std::fmt::{self, Display, Formatter};
-
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Sign {
-    O, X
+    O,
+    X,
 }
 
 impl Display for Sign {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", match self {
-            Sign::O => "O",
-            Sign::X => "X",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Sign::O => "O",
+                Sign::X => "X",
+            }
+        )
     }
 }
-
 
 #[derive(Debug, PartialEq)]
 pub enum TileState {
@@ -28,19 +31,17 @@ impl Display for TileState {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
             TileState::Marked(sign) => write!(f, "{}", sign),
-            TileState::Empty => write!(f, " ")
+            TileState::Empty => write!(f, " "),
         }
     }
 }
-
 
 #[derive(Debug, PartialEq)]
 pub enum GameState {
     NotOver,
     Full,
-    Won(Sign)
+    Won(Sign),
 }
-
 
 #[derive(Debug, PartialEq)]
 pub struct Board {
@@ -51,7 +52,9 @@ pub struct Board {
 impl Board {
     pub fn new() -> Board {
         let mut tiles = HashMap::new();
-        (1..=9).for_each(|i| {tiles.insert(i, TileState::Empty);});
+        (1..=9).for_each(|i| {
+            tiles.insert(i, TileState::Empty);
+        });
         Board { tiles, count: 0 }
     }
 
@@ -62,21 +65,21 @@ impl Board {
 
         let mut count = 0;
 
-        let tiles = (1..=9).into_iter().zip(
-            sequence.chars()
-                .map(|c| match c {
-                    'O' => {
-                        count += 1;
-                        TileState::Marked(Sign::O)
-                    },
-                    'X' => {
-                        count += 1;
-                        TileState::Marked(Sign::X)
-                    },
-                    ' ' => TileState::Empty,
-                    other => panic!("Unknown tile identifier: '{}'", other)
-                })
-        ).collect::<HashMap<u8, TileState>>();
+        let tiles = (1..=9)
+            .into_iter()
+            .zip(sequence.chars().map(|c| match c {
+                'O' => {
+                    count += 1;
+                    TileState::Marked(Sign::O)
+                }
+                'X' => {
+                    count += 1;
+                    TileState::Marked(Sign::X)
+                }
+                ' ' => TileState::Empty,
+                other => panic!("Unknown tile identifier: '{}'", other),
+            }))
+            .collect::<HashMap<u8, TileState>>();
 
         Board { tiles, count }
     }
@@ -88,10 +91,10 @@ impl Board {
                     entry.insert(TileState::Marked(sign));
                     self.count += 1;
                     Ok(index)
-                },
-                TileState::Marked(_) => Err("This tile is already marked. Please try another tile")
+                }
+                TileState::Marked(_) => Err("This tile is already marked. Please try another tile"),
             },
-            _ => panic!("Undefined behavior")
+            _ => panic!("Undefined behavior"),
         }
     }
 
@@ -108,19 +111,19 @@ impl Board {
             [2, 5, 8],
             [3, 6, 9],
             [1, 5, 9],
-            [3, 5, 7]
+            [3, 5, 7],
         ];
 
-        for layout in layouts {        
+        for layout in layouts {
             match layout.map(|i| self.tiles.get(&i).unwrap()) {
                 [TileState::Marked(s1), TileState::Marked(s2), TileState::Marked(s3)] => {
                     if s1 == s2 && s2 == s3 {
-                        return Some(*s1)
+                        return Some(*s1);
                     }
-                },
-                _ => continue
+                }
+                _ => continue,
             }
-        } 
+        }
 
         None
     }
@@ -138,7 +141,8 @@ impl Board {
 
 impl Display for Board {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f,
+        write!(
+            f,
             " {} | {} | {} \n-----------\n {} | {} | {} \n-----------\n {} | {} | {}",
             self.tiles[&1],
             self.tiles[&2],
@@ -153,12 +157,10 @@ impl Display for Board {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Player {
-    pub sign: Sign
+    pub sign: Sign,
 }
-
 
 pub trait Interface {
     fn choose_first_player_sign(&self) -> Sign;
@@ -168,24 +170,19 @@ pub trait Interface {
     fn on_end(&self, game_state: GameState);
 }
 
-
-
 pub fn run<T: Interface>(interface: &T) {
-    let players = [
-        Player { sign: Sign::O },
-        Player { sign: Sign::X }
-    ];
+    let players = [Player { sign: Sign::O }, Player { sign: Sign::X }];
 
     let player_sign = interface.choose_first_player_sign();
     let mut player_index = players.iter().position(|p| p.sign == player_sign).unwrap();
 
     let mut board = Board::new();
-    
+
     while board.get_game_state() == GameState::NotOver {
         interface.show_board(&board);
 
         let current_player = &players[player_index % players.len()];
-        player_moves(&current_player, &mut board, interface);
+        player_moves(current_player, &mut board, interface);
 
         player_index += 1;
     }
@@ -195,30 +192,33 @@ pub fn run<T: Interface>(interface: &T) {
 }
 
 pub fn player_moves<T: Interface>(player: &Player, board: &mut Board, interface: &T) {
-    let mut input = interface.retrieve_input(&format!("{}, please enter a tile number (1-9):", player.sign));
+    let mut input = interface.retrieve_input(&format!(
+        "{}, please enter a tile number (1-9):",
+        player.sign
+    ));
     loop {
         match validate_input(&input).and_then(|i| board.set_tile(i, player.sign)) {
-            Ok(index) => { interface.on_play(player, index); break; },
-            Err(e) => input = interface.retrieve_input(e)
+            Ok(index) => {
+                interface.on_play(player, index);
+                break;
+            }
+            Err(e) => input = interface.retrieve_input(e),
         }
     }
 }
 
-pub fn validate_input(input: &String) -> Result<u8, &str> {
+pub fn validate_input(input: &str) -> Result<u8, &str> {
     match input.trim().parse::<u8>() {
         Ok(n) if (1..=9).contains(&n) => Ok(n),
-        _ => Err("Please enter a number between 1 and 9")
+        _ => Err("Please enter a number between 1 and 9"),
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
-    use crate::{*, Sign::*, TileState::*, GameState::*};
-    use std::collections::{HashMap, VecDeque};
+    use crate::{GameState::*, Sign::*, TileState::*, *};
     use std::cell::RefCell;
-
+    use std::collections::{HashMap, VecDeque};
 
     struct MockInterface<'a> {
         inputs: RefCell<VecDeque<&'a str>>,
@@ -242,12 +242,14 @@ mod tests {
         fn retrieve_input(&self, message: &str) -> String {
             match self.inputs.borrow_mut().pop_front() {
                 Some(input) => input.to_string(),
-                None => panic!("No more input registered")
+                None => panic!("No more input registered"),
             }
         }
 
         fn on_play(&self, player: &Player, index: u8) {
-            self.actions.borrow_mut().push(format!("{} plays on {}", player.sign, index))
+            self.actions
+                .borrow_mut()
+                .push(format!("{} plays on {}", player.sign, index))
         }
 
         fn show_board(&self, board: &Board) {}
@@ -256,11 +258,10 @@ mod tests {
             self.actions.borrow_mut().push(match game_state {
                 GameState::Full => "Draw, board is full".to_string(),
                 GameState::Won(winner) => format!("Game won by {}", winner),
-                _ => "Error".to_string()
+                _ => "Error".to_string(),
             });
         }
     }
-
 
     #[test]
     fn from_str_works() {
@@ -355,7 +356,7 @@ mod tests {
         assert!(board.set_tile(1, X).is_err());
         assert_eq!(*board.tiles.get(&1).unwrap(), Marked(O));
     }
-    
+
     #[test]
     fn input_correctly_validated() {
         for i in 1..=9 {
@@ -369,7 +370,7 @@ mod tests {
         assert!(validate_input(&String::from("10")).is_err());
         assert!(validate_input(&String::from("yo")).is_err());
     }
-    
+
     #[test]
     fn it_draws() {
         let mock = MockInterface::new(vec!["5", "2", "6", "4", "1", "9", "7", "3", "8"]);
@@ -385,7 +386,7 @@ mod tests {
             "O plays on 7".to_string(),
             "X plays on 3".to_string(),
             "O plays on 8".to_string(),
-            "Draw, board is full".to_string()
+            "Draw, board is full".to_string(),
         ];
 
         assert_eq!(mock.actions.borrow().to_owned(), actions);
@@ -402,5 +403,4 @@ mod tests {
         assert_eq!(mock1.actions.borrow().last().unwrap(), "Game won by O");
         assert_eq!(mock2.actions.borrow().last().unwrap(), "Game won by X");
     }
-
 }

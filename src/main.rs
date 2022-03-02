@@ -1,6 +1,6 @@
-use tictactoe::*;
 use rand::seq::SliceRandom;
 use std::io::stdin;
+use tictactoe::*;
 
 fn main() {
     let interface = ConsoleInterface {};
@@ -32,7 +32,7 @@ impl Interface for ConsoleInterface {
         match game_state {
             GameState::Full => println!("Board is full, it's a draw."),
             GameState::Won(winner) => println!("{} Won the game!", winner),
-            _ => panic!("Undefined behavior")
+            _ => panic!("Undefined behavior"),
         }
     }
 }
