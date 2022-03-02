@@ -86,6 +86,7 @@ impl Board {
             Entry::Occupied(mut entry) => match entry.get() {
                 TileState::Empty => {
                     entry.insert(TileState::Marked(sign));
+                    self.count += 1;
                     Ok(index)
                 },
                 TileState::Marked(_) => Err("This tile is already marked. Please try another tile")
