@@ -199,7 +199,7 @@ pub fn player_moves<T: Interface>(player: &Player, board: &mut Board, interface:
     let mut input = interface.retrieve_input(&format!("{}, please enter a tile number (1-9):", player.sign));
     loop {
         match validate_input(&input).and_then(|i| board.set_tile(i, player.sign)) {
-            Ok(index) => break interface.on_play(player, index),
+            Ok(index) => { interface.on_play(player, index); break; },
             Err(e) => input = interface.retrieve_input(e)
         }
     }
