@@ -161,7 +161,6 @@ pub struct Player {
 
 
 pub trait Interface {
-    // fn choose_first_player<'a>(&self, players: &'a [Player]) -> &'a Player;
     fn choose_first_player_sign(&self) -> Sign;
     fn retrieve_input(&self, message: &str) -> String;
     fn on_play(&self, player: &Player, index: u8);
